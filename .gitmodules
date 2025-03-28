@@ -1,9 +1,9 @@
 [submodule "extern/clap"]
 	path = extern/clap
 	url = https://github.com/free-audio/clap.git
-[submodule "extern/NeuralAmpModelerCore"]
-	path = extern/NeuralAmpModelerCore
-	url = https://github.com/sdatkinson/NeuralAmpModelerCore.git
 [submodule "extern/clap-validator"]
 	path = extern/clap-validator
 	url = https://github.com/free-audio/clap-validator.git
+[submodule "extern/NeuralAudio"]
+	path = extern/NeuralAudio
+	url = https://github.com/mikeoliphant/NeuralAudio.git
