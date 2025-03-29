@@ -1,7 +1,16 @@
-
 #include <cstring>          // for strcmp
-#include "plugin.h"         // for getPluginDescriptor(), createPlugin
-#include "clap/clap.h"      // if you have CLAP headers in your include path
+#include "plugin.h"    // for namClapGetDescriptor(), namClapCreate()
+#include "clap/clap.h"
+#include "visibility.h"
+
+// Ensure proper symbol visibility
+#ifndef CLAP_EXPORT
+    #ifdef _WIN32
+        #define CLAP_EXPORT __declspec(dllexport)
+    #else
+        #define CLAP_EXPORT __attribute__((visibility("default")))
+    #endif
+#endif
 
 // We'll define a static plugin_factory
 static uint32_t getPluginCount(const clap_plugin_factory *factory) {
@@ -13,7 +22,7 @@ static const clap_plugin_descriptor *getPluginDescriptor(const clap_plugin_facto
                                                          uint32_t index) {
     (void)factory;
     if (index == 0)
-        return getPluginDescriptor(); // from plugin.cpp
+        return namClapGetDescriptor(); // from plugin.cpp
     return nullptr;
 }
 
@@ -22,21 +31,21 @@ static const clap_plugin *factoryCreate(const clap_plugin_factory *factory,
                                         const char *plugin_id) {
     (void)factory;
     // compare ID to our descriptor
-    if (strcmp(plugin_id, getPluginDescriptor()->id) == 0) {
-        return createPlugin(host); // from plugin.cpp
+    if (strcmp(plugin_id, namClapGetDescriptor()->id) == 0) {
+        return namClapCreate(host); // from plugin.cpp
     }
     return nullptr;
 }
 
 // The plugin_factory struct
 static const clap_plugin_factory s_factory = {
-    .get_plugin_count = getPluginCount,
-    .get_plugin_descriptor = getPluginDescriptor,
-    .create_plugin = factoryCreate,
+    .get_plugin_count     = getPluginCount,
+    .get_plugin_descriptor= getPluginDescriptor,
+    .create_plugin        = factoryCreate,
 };
 
 // The plugin_entry
-static bool entryInit(void) {
+static bool entryInit(const char *plugin_path) {
     // global init if needed
     return true;
 }
@@ -53,12 +62,11 @@ static const void *entryGetFactory(const char *factory_id) {
 }
 
 // Export the clap_entry symbol
-extern "C" const struct clap_plugin_entry *clap_entry(void) {
-    static const clap_plugin_entry s_entry = {
-        CLAP_VERSION,
-        entryInit,
-        entryDeinit,
-        entryGetFactory,
+extern "C" {
+    CLAP_EXPORT const struct clap_plugin_entry clap_entry = {
+        .clap_version = CLAP_VERSION_INIT,
+        .init = entryInit,
+        .deinit = entryDeinit,
+        .get_factory = entryGetFactory
     };
-    return &s_entry;
 }
