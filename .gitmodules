@@ -1,9 +1,6 @@
-[submodule "extern/clap"]
-	path = extern/clap
-	url = https://github.com/free-audio/clap.git
-[submodule "extern/clap-validator"]
-	path = extern/clap-validator
-	url = https://github.com/free-audio/clap-validator.git
-[submodule "extern/NeuralAudio"]
-	path = extern/NeuralAudio
-	url = https://github.com/mikeoliphant/NeuralAudio.git
+[submodule "libs/DPF"]
+	path = libs/DPF
+	url = https://github.com/DISTRHO/DPF
+[submodule "extern/NeuralAmpModelerPlugin"]
+	path = extern/NeuralAmpModelerPlugin
+	url = https://github.com/sdatkinson/NeuralAmpModelerPlugin
