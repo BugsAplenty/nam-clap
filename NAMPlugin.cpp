@@ -9,7 +9,7 @@ NAMPlugin::NAMPlugin()
 
 void NAMPlugin::initParameter(uint32_t index, Parameter& p) {
     if (index == kParamInputGain) {
-        p.hints = kParameterIsAutomable;
+        p.hints = kParameterIsAutomatable;   // <- updated
         p.name = "Input Gain";
         p.symbol = "ingain";
         p.unit = "dB";
@@ -21,15 +21,14 @@ void NAMPlugin::initParameter(uint32_t index, Parameter& p) {
 
 void NAMPlugin::activate() {
     engine_.setSampleRate(getSampleRate());
-    // Optionally load a default model bundled in Resources/models
     // engine_.loadModel("Resources/models/default.nam");
 }
 
 void NAMPlugin::run(const float** inputs, float** outputs, uint32_t frames) {
-    const uint32_t chans = std::min<uint32_t>(2, getAudioInputCount());
+    const uint32_t chans = std::min<uint32_t>(2, (uint32_t)DISTRHO_PLUGIN_NUM_INPUTS); // <- updated
     const float lin = std::pow(10.f, gainDb_ / 20.f);
 
-    // pre-gain & copy input → output (planar buffers)
+    // pre-gain & copy input → output (planar)
     for (uint32_t c=0; c<chans; ++c) {
         const float* in = inputs[c];
         float* out      = outputs[c];
@@ -37,7 +36,7 @@ void NAMPlugin::run(const float** inputs, float** outputs, uint32_t frames) {
             out[i] = in[i] * lin;
     }
 
-    // Process with NAM core (NAMEngine will call the core)
+    // hand off to core
     engine_.process(const_cast<const float**>(outputs), outputs, chans, frames);
 }
 

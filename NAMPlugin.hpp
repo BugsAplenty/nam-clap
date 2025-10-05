@@ -6,7 +6,7 @@ START_NAMESPACE_DISTRHO
 
 class NAMPlugin final : public Plugin {
 public:
-    enum Parameters { kParamInputGain = 0, kParamCount = DISTRHO_PLUGIN_NUM_PARAMETERS };
+    enum { kParamInputGain = 0 };
     NAMPlugin();
 
 protected:
@@ -14,13 +14,12 @@ protected:
     const char* getMaker()   const noexcept override { return "Example"; }
     const char* getLicense() const noexcept override { return "MIT"; }
     uint32_t    getVersion() const noexcept override { return DISTRHO_PLUGIN_VERSION; }
-    int64_t     getUniqueId()const noexcept override { return 0x4E414D30; } // 'NAM0'
+    int64_t     getUniqueId()const noexcept override { return 0x4E414D30; }
 
-    void initParameter(uint32_t index, Parameter& parameter) override;
-
+    void initParameter(uint32_t index, Parameter& p) override;
     void activate() override;
     void deactivate() override {}
-    void run(const float** inputs, float** outputs, uint32_t frames) override;
+    void run(const float** in, float** out, uint32_t frames) override;
 
     float getParameterValue(uint32_t index) const override;
     void  setParameterValue(uint32_t index, float value) override;
@@ -28,7 +27,6 @@ protected:
 private:
     NAMEngine engine_;
     float     gainDb_ = 0.0f;
-
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NAMPlugin)
 };
 

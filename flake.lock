@@ -1,21 +1,5 @@
 {
   "nodes": {
-    "dpf": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1757317217,
-        "narHash": "sha256-3FuOcjymIoa8T+Ehv56YJQyLEO44MgyYQyxIOz/7L08=",
-        "owner": "DISTRHO",
-        "repo": "DPF",
-        "rev": "d47aaadfdfe47b7841bf03b76971fa83579f6a64",
-        "type": "github"
-      },
-      "original": {
-        "owner": "DISTRHO",
-        "repo": "DPF",
-        "type": "github"
-      }
-    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -34,43 +18,25 @@
         "type": "github"
       }
     },
-    "nam": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1758672347,
-        "narHash": "sha256-NUxUOvMpv7qU42ePCFIrdzK3PWMh2UtpI8GZ3UGaXy0=",
-        "owner": "BugsAplenty",
-        "repo": "NeuralAmpModelerCore",
-        "rev": "3aec70385f1a82360c14ccdcaff93434a90128f2",
-        "type": "github"
-      },
-      "original": {
-        "owner": "BugsAplenty",
-        "repo": "NeuralAmpModelerCore",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1735563628,
-        "narHash": "sha256-OnSAY7XDSx7CtDoqNh8jwVwh4xNL/2HaJxGjryLWzX8=",
+        "lastModified": 1759381078,
+        "narHash": "sha256-gTrEEp5gEspIcCOx9PD8kMaF1iEmfBcTbO0Jag2QhQs=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "b134951a4c9f3c995fd7be05f3243f8ecd65d798",
+        "rev": "7df7ff7d8e00218376575f0acdcc5d66741351ee",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
-        "ref": "nixos-24.05",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
     },
     "root": {
       "inputs": {
-        "dpf": "dpf",
         "flake-utils": "flake-utils",
-        "nam": "nam",
         "nixpkgs": "nixpkgs"
       }
     },

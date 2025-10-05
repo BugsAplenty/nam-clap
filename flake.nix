@@ -1,71 +1,61 @@
 {
-  description = "NAM CLAP plugin via DPF using BugsAplenty/NeuralAmpModelerCore (no submodules)";
+  description = "Dev shell for building DPF + NAM CLAP (X11/OpenGL/Cairo, etc.)";
 
-  inputs = {
-    nixpkgs.url     = "github:NixOS/nixpkgs/nixos-24.05";
-    flake-utils.url = "github:numtide/flake-utils";
-    dpf.url   = "github:DISTRHO/DPF";
-    dpf.flake = false;
-    nam.url   = "github:BugsAplenty/NeuralAmpModelerCore";
-    nam.flake = false;
-  };
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs.flake-utils.url = "github:numtide/flake-utils";
 
-  outputs = { self, nixpkgs, flake-utils, dpf, nam }:
+  outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
-        nativeTools = with pkgs; [ gnumake pkg-config cmake ninja ];
-        toolchain   = with pkgs; [ stdenv.cc.cc ];
-        eigen        = pkgs.eigen;
-        nlohmannJson = pkgs.nlohmann_json;
-      in
-      {
+        tools = with pkgs; [
+          gnumake
+          pkg-config
+          gcc
+          binutils
+          gdb
+          cmake
+          ninja
+          python3
+          git
+        ];
+        # GUI + audio libs DPF can use (provide pkg-config .pc files)
+        libs = with pkgs; [
+          # X11 / OpenGL / GUI stack
+          xorg.libX11
+          xorg.libXext
+          xorg.libXrandr
+          xorg.libXcursor
+          mesa              # libGL
+          mesa_glu          # libGLU (some setups still look for it)
+          cairo
+          freetype
+          fontconfig
+          dbus
+          SDL2
+
+          # Audio backends
+          jack2
+          alsa-lib
+          pulseaudio
+        ];
+      in {
         devShells.default = pkgs.mkShell {
-          packages = nativeTools ++ toolchain ++ [ eigen nlohmannJson ];
-          # Export for manual builds only (safe in the shell)
-          DPF_PATH = dpf;
-          NAM_PATH = nam;
-          EIGEN_INCLUDE    = "${eigen}/include/eigen3";
-          NLOHMANN_INCLUDE = "${nlohmannJson}/include";
-        };
+          packages = tools ++ libs;
 
-        packages.nam-clap = pkgs.stdenv.mkDerivation {
-          pname = "nam-clap";
-          version = "0.1.0";
-          src = ./.;
-
-          # only what we actually need for make + pkg-config
-          nativeBuildInputs = [ pkgs.gnumake pkgs.pkg-config ];
-          buildInputs       = [ pkgs.stdenv.cc.cc ];
-
-          # IMPORTANT: prevent CMake auto-configure
-          dontConfigure = true;
-
-          buildPhase = ''
-            runHook preBuild
-            make -C plugins/nam \
-              CLAP=true \
-              DPF_PATH=${dpf} \
-              NAM_PATH=${nam} \
-              EXTRA_CFLAGS="-I${pkgs.eigen}/include/eigen3 -I${pkgs.nlohmann_json}/include"
-            runHook postBuild
+          # Helpful for some build systems; Nix usually sets PKG_CONFIG_PATH automatically,
+          # but we print what DPF detects so you get instant feedback.
+          shellHook = ''
+            echo ">>> Entered NAM/DPF dev shell"
+            echo ">>> pkg-config sees:"
+            pkg-config --list-all | grep -E '^(x11|xext|xrandr|xcursor|gl|glu|cairo|freetype2|fontconfig|jack|alsa|pulse|sdl2)\b' || true
+            if [ -d libs/DPF ]; then
+              echo ">>> DPF feature probe:"
+              (cd libs/DPF && make -s features || true)
+            else
+              echo ">>> (Tip) Clone/init submodule: git submodule update --init --recursive libs/DPF"
+            fi
           '';
-
-          installPhase = ''
-            runHook preInstall
-            mkdir -p $out/lib/clap
-            cp -r plugins/nam/bin/NAM.clap $out/lib/clap/
-            echo "Installed -> $out/lib/clap/NAM.clap"
-            runHook postInstall
-          '';
-
-          meta = with pkgs.lib; {
-            description = "Neural Amp Modeler (NAM) CLAP plugin via DPF using NAM Core fork";
-            license     = licenses.mit;
-            platforms   = platforms.linux ++ platforms.darwin;
-          };
         };
-
-        packages.default = self.outputs.packages.${system}.nam-clap;
       });
 }
